@@ -1,239 +1,696 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZfP Normen & Standards</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Standards & Normen - ZfP Portal</title>
 
-<style>
+  <style>
+    /* ===== Design-Variablen (identisch zum Portal) ===== */
+    :root {
+      --radius: 14px;
+      --shadow-sm: 0 6px 18px rgba(0,0,0,0.08);
+      --shadow-md: 0 12px 26px rgba(0,0,0,0.12);
+      --shadow-lg: 0 20px 42px rgba(0,0,0,0.16);
+      
+      /* Light Mode Colors */
+      --bg: #f7f8fa;
+      --fg: #2b2f33;
+      --muted: #5f6b73;
+      --border: #e5e9ef;
+      --card-bg: #ffffff;
+      --card-border: rgba(0,0,0,0.08);
+      
+      /* Hero */
+      --hero-start: rgba(52,152,219,0.08);
+      --hero-end: rgba(46,204,113,0.06);
+      --hero-border: rgba(52,152,219,0.18);
+      --hero-text: #2c3e50;
+      
+      /* Tile Farben - Türkis für Standards */
+      --standard-start: #16A085;
+      --standard-end: #138D75;
+      --tile-fg: #fff;
+      --tile-icon-bg: rgba(255,255,255,0.18);
+      --tile-icon-border: rgba(255,255,255,0.22);
+      
+      /* Button */
+      --button-bg: #3498db;
+      --button-hover: #2980b9;
+      --button-text: #ffffff;
+      --button-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      
+      /* Header */
+      --header-border: #2c3e50;
+      --header-text: #2c3e50;
+      
+      /* Creator Info */
+      --creator-color: #2c3e50;
+      
+      /* Filter */
+      --filter-bg: #ffffff;
+      --filter-border: #d1d5db;
+      --filter-focus: #3498db;
+    }
 
-body{
-font-family: Arial, sans-serif;
-margin:0;
-background:#f4f6f8;
-}
+    /* ===== Dark Mode ===== */
+    body.dark-mode {
+      --bg: #121212;
+      --fg: #e0e0e0;
+      --muted: #c2c7cc;
+      --border: rgba(255,255,255,0.08);
+      --card-bg: #1e1e1e;
+      --card-border: rgba(255,255,255,0.12);
+      
+      --hero-start: rgba(52,152,219,0.10);
+      --hero-end: rgba(46,204,113,0.08);
+      --hero-border: rgba(52,152,219,0.22);
+      --hero-text: #ffffff;
+      
+      --standard-start: #16A085;
+      --standard-end: #138D75;
+      --tile-fg: #ffffff;
+      --tile-icon-bg: rgba(255,255,255,0.15);
+      --tile-icon-border: rgba(255,255,255,0.20);
+      
+      --button-bg: #3498db;
+      --button-hover: #2980b9;
+      --button-text: #ffffff;
+      
+      --header-border: #444444;
+      --header-text: #ffffff;
+      --creator-color: #ffffff;
+      
+      --shadow-sm: 0 6px 18px rgba(0,0,0,0.25);
+      --shadow-md: 0 12px 26px rgba(0,0,0,0.35);
+      --shadow-lg: 0 20px 42px rgba(0,0,0,0.45);
+      
+      --filter-bg: #1e1e1e;
+      --filter-border: #444444;
+      --filter-focus: #3498db;
+    }
 
-header{
-background:#003a8f;
-color:white;
-padding:16px;
-text-align:center;
-font-size:20px;
-}
+    /* ===== Basis ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { 
+      height: 100%; 
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      min-height: 100vh;
+    }
 
-.container{
-max-width:1100px;
-margin:auto;
-padding:15px;
-}
+    /* Hauptcontainer im Stil des Portals */
+    .normen-portal {
+      max-width: 1200px;
+      margin: 20px auto;
+      background: var(--card-bg);
+      color: var(--fg);
+      padding: 18px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--card-border);
+      transition: all 0.3s ease;
+      position: relative;
+    }
 
-.filters{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:15px;
-}
+    /* Header mit Logo */
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--header-border);
+      transition: border-color 0.3s ease;
+    }
+    
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    
+    .schaeffler-logo {
+      height: 35px;
+      width: auto;
+      filter: brightness(1);
+      transition: filter 0.3s ease;
+    }
+    
+    body.dark-mode .schaeffler-logo {
+      filter: brightness(1.2);
+    }
 
-select,input{
-padding:8px;
-font-size:16px;
-}
+    h1 {
+      color: var(--header-text);
+      font-size: 2.2em;
+      font-weight: 800;
+      letter-spacing: .2px;
+      margin: 0;
+      transition: color 0.3s ease;
+      text-align: center;
+    }
 
-input{
-flex:1;
-min-width:200px;
-}
+    /* Hero Bereich */
+    .hero {
+      position: relative;
+      margin: 14px 0 18px;
+      border-radius: var(--radius);
+      padding: 16px;
+      background: linear-gradient(135deg, var(--standard-start) 0%, var(--standard-end) 110%);
+      border: 1px solid var(--hero-border);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      color: white;
+    }
 
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-}
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 300px; height: 200px;
+      left: -160px; top: -180px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.34), transparent 60%);
+      pointer-events: none;
+    }
+    
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: -60% -60%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent 40%, rgba(255,255,255,0.05));
+      transform: rotate(12deg);
+      pointer-events: none;
+    }
 
-th, td{
-padding:10px;
-border-bottom:1px solid #ddd;
-text-align:left;
-}
+    .hero h2 {
+      text-align: center;
+      color: white;
+      font-size: 1.4em;
+      font-weight: 800;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero p {
+      text-align: center;
+      color: rgba(255,255,255,0.95);
+      font-size: .95em;
+      position: relative;
+      z-index: 1;
+    }
 
-th{
-background:#e9edf2;
-}
+    /* Filterbereich im Portal-Stil */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
 
-a{
-color:#0066cc;
-text-decoration:none;
-}
+    select, input {
+      padding: 10px 14px;
+      font-size: 15px;
+      border: 2px solid var(--filter-border);
+      border-radius: 8px;
+      background: var(--filter-bg);
+      color: var(--fg);
+      transition: all 0.3s ease;
+    }
 
-a:hover{
-text-decoration:underline;
-}
+    select {
+      min-width: 150px;
+      cursor: pointer;
+    }
 
-/* Mobile Darstellung */
+    input {
+      flex: 1;
+      min-width: 250px;
+    }
 
-@media (max-width:700px){
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--filter-focus);
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+    }
 
-table, thead, tbody, th, td, tr{
-display:block;
-}
+    /* Tabellencontainer im Card-Stil */
+    .table-container {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 20px;
+    }
 
-thead{
-display:none;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+    }
 
-tr{
-background:white;
-margin-bottom:10px;
-padding:10px;
-border-radius:8px;
-}
+    th {
+      background: var(--bg);
+      color: var(--fg);
+      font-weight: 700;
+      padding: 16px 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      font-size: 0.95em;
+      letter-spacing: 0.3px;
+    }
 
-td{
-border:none;
-padding:5px 0;
-}
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg);
+    }
 
-td:before{
-font-weight:bold;
-display:block;
-}
+    tr:last-child td {
+      border-bottom: none;
+    }
 
-td:nth-child(1):before{content:"Verfahren";}
-td:nth-child(2):before{content:"Typ";}
-td:nth-child(3):before{content:"Titel";}
-td:nth-child(4):before{content:"Norm";}
-td:nth-child(5):before{content:"Organisation";}
-td:nth-child(6):before{content:"Link";}
-}
+    tr:hover td {
+      background: var(--bg);
+    }
 
-</style>
+    /* Link-Button im Portal-Stil */
+    .norm-link {
+      display: inline-block;
+      background: var(--button-bg);
+      color: var(--button-text);
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .norm-link:hover {
+      background: var(--button-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--button-shadow);
+      text-decoration: none;
+    }
+
+    .norm-link:active {
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .9em;
+      transition: border-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .company-info {
+      font-weight: 600;
+      color: var(--header-text);
+      margin-bottom: 4px;
+      font-size: 1.1em;
+    }
+    
+    .creator-info { 
+      font-weight: 700; 
+      color: var(--creator-color); 
+      margin-top: 4px;
+      transition: color 0.3s ease;
+    }
+    .version-info { 
+      margin-top: 2px; 
+      font-size: .85em; 
+      color: var(--muted);
+      transition: color 0.3s ease;
+    }
+
+    /* Theme Toggle Button (wie im Portal) */
+    .theme-toggle-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      color: var(--fg);
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      z-index: 9998;
+    }
+    
+    .theme-toggle-button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--button-bg);
+    }
+
+    /* Mobile Darstellung optimiert */
+    @media (max-width: 768px) {
+      body { 
+        padding: 8px; 
+        font-size: 14px; 
+      }
+      .normen-portal { 
+        padding: 12px; 
+        margin: 5px auto;
+        max-width: 100%;
+      }
+      h1 { 
+        font-size: 1.8em; 
+      }
+      .schaeffler-logo {
+        height: 30px;
+      }
+      .filters {
+        flex-direction: column;
+        padding: 12px;
+      }
+      select, input {
+        width: 100%;
+      }
+      
+      /* Mobile Tabellendarstellung mit Labels */
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      
+      thead {
+        display: none;
+      }
+      
+      tr {
+        background: var(--card-bg);
+        margin-bottom: 12px;
+        padding: 16px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+      
+      td {
+        border: none;
+        padding: 8px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      td:before {
+        content: attr(data-label);
+        font-weight: 700;
+        min-width: 110px;
+        color: var(--muted);
+      }
+      
+      .norm-link {
+        margin-left: auto;
+      }
+      
+      .company-info {
+        font-size: 1em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 { 
+        font-size: 1.5em; 
+      }
+      .schaeffler-logo {
+        height: 25px;
+      }
+      .theme-toggle-button {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        bottom: 15px;
+        right: 15px;
+      }
+      td:before {
+        min-width: 90px;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="normen-portal">
+    <!-- Header mit Logo -->
+    <header>
+      <div class="logo-container">
+        <img class="schaeffler-logo" src="https://upload.wikimedia.org/wikipedia/commons/7/72/Schaeffler_logo.svg" alt="Schaeffler Logo">
+      </div>
+      <h1>Standards & Normen</h1>
+    </header>
 
-<header>
-ZfP Normen & Standards
-</header>
+    <!-- Hero Bereich -->
+    <div class="hero">
+      <h2>ZfP Normen & Standards</h2>
+      <p>Interne und externe Normen für die zerstörungsfreie Prüfung</p>
+    </div>
 
-<div class="container">
+    <!-- Filterbereich -->
+    <div class="filters">
+      <input type="text" id="suche" placeholder="Suche nach Norm, Titel, Organisation...">
+      
+      <select id="verfahrenFilter">
+        <option value="">Alle Verfahren</option>
+        <option value="VT">VT</option>
+        <option value="MT">MT</option>
+        <option value="PT">PT</option>
+        <option value="UT">UT</option>
+        <option value="ET">ET</option>
+        <option value="RT">RT</option>
+        <option value="allgemein">allgemein</option>
+      </select>
 
-<div class="filters">
+      <select id="typFilter">
+        <option value="">Alle Typen</option>
+        <option value="Norm">Norm</option>
+        <option value="Standard">Standard</option>
+        <option value="Richtlinie">Richtlinie</option>
+        <option value="Spezifikation">Spezifikation</option>
+      </select>
+    </div>
 
-<input type="text" id="suche" placeholder="Suche nach Norm, Titel, Organisation...">
+    <!-- Tabelle mit Normen -->
+    <div class="table-container">
+      <table id="normTable">
+        <thead>
+          <tr>
+            <th>Verfahren</th>
+            <th>Typ</th>
+            <th>Titel</th>
+            <th>Norm</th>
+            <th>Organisation</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Wird per JavaScript befüllt -->
+        </tbody>
+      </table>
+    </div>
 
-<select id="verfahrenFilter">
-<option value="">Alle Verfahren</option>
-<option value="VT">VT</option>
-<option value="MT">MT</option>
-<option value="PT">PT</option>
-<option value="UT">UT</option>
-<option value="ET">ET</option>
-</select>
+    <!-- Footer -->
+    <footer>
+      <div class="company-info">Schaeffler Technologies AG & Co. KG</div>
+      <div class="version-info">Version 00, 09.02.2026</div>
+      <div>ZfP-Portal Schweinfurt</div>
+      <div class="creator-info">Ersteller: Häusner Daniel, WI/SW2-PQT</div>
+    </footer>
+  </div>
 
-<select id="typFilter">
-<option value="">Norm + Standard</option>
-<option value="Norm">Norm</option>
-<option value="Standard">Standard</option>
-</select>
+  <!-- Theme Toggle Button -->
+  <button class="theme-toggle-button" id="themeToggleBtn" aria-label="Dark/Light Mode umschalten">🌓</button>
 
-</div>
+  <script>
+    // ===== KONFIGURATION =====
+    const CSV_URL = "https://raw.githubusercontent.com/Acendrion1984/Standards/main/Standards.csv";
+    const THEME_STORAGE_KEY = 'zfp-theme-preference';
+    
+    let normenDaten = [];
 
-<table id="normTable">
+    // ===== THEME MANAGEMENT (wie im Portal) =====
+    function initTheme() {
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
+    
+    function toggleTheme() {
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      
+      if (isDarkMode) {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem(THEME_STORAGE_KEY, 'light');
+      } else {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+      }
+    }
 
-<thead>
-<tr>
-<th>Verfahren</th>
-<th>Typ</th>
-<th>Titel</th>
-<th>Norm</th>
-<th>Organisation</th>
-<th>Link</th>
-</tr>
-</thead>
+    // ===== CSV LADEN =====
+    async function ladeCSV() {
+      try {
+        const response = await fetch(CSV_URL);
+        const text = await response.text();
+        
+        // CSV parsen (einfaches Splitten, berücksichtigt keine Anführungszeichen)
+        const rows = text.split("\n").slice(1); // Kopfzeile überspringen
+        
+        normenDaten = rows
+          .filter(row => row.trim() !== "") // Leere Zeilen entfernen
+          .map(row => {
+            const cols = row.split(",");
+            return {
+              verfahren: cols[0]?.trim() || "",
+              typ: cols[1]?.trim() || "",
+              titel: cols[2]?.trim() || "",
+              norm: cols[3]?.trim() || "",
+              org: cols[4]?.trim() || "",
+              link: cols[5]?.trim() || "#"
+            };
+          });
+        
+        anzeigen();
+      } catch (error) {
+        console.error("Fehler beim Laden der CSV:", error);
+        // Fallback: Beispiel-Daten anzeigen
+        normenDaten = [
+          { verfahren: "VT", typ: "Norm", titel: "Zerstörungsfreie Prüfung - Qualifizierung und Zertifizierung von Personal", norm: "DIN EN ISO 9712", org: "ISO", link: "#" },
+          { verfahren: "MT", typ: "Standard", titel: "Standard Practice for Magnetic Particle Testing", norm: "ASTM E1444", org: "ASTM", link: "#" },
+          { verfahren: "allgemein", typ: "Richtlinie", titel: "ZfP Review Audits", norm: "IN QP 29005", org: "Schaeffler", link: "#" }
+        ];
+        anzeigen();
+      }
+    }
 
-<tbody></tbody>
+    // ===== ANZEIGEN MIT FILTERN =====
+    function anzeigen() {
+      const verfahrenFilter = document.getElementById("verfahrenFilter").value;
+      const typFilter = document.getElementById("typFilter").value;
+      const suchtext = document.getElementById("suche").value.toLowerCase();
+      
+      const gefiltert = normenDaten.filter(eintrag => {
+        // Verfahrensfilter
+        if (verfahrenFilter && eintrag.verfahren.toLowerCase() !== verfahrenFilter.toLowerCase()) {
+          return false;
+        }
+        
+        // Typfilter
+        if (typFilter && eintrag.typ.toLowerCase() !== typFilter.toLowerCase()) {
+          return false;
+        }
+        
+        // Textsuche
+        if (suchtext) {
+          const suchFelder = [
+            eintrag.titel,
+            eintrag.norm,
+            eintrag.org,
+            eintrag.verfahren
+          ].map(feld => feld.toLowerCase());
+          
+          return suchFelder.some(feld => feld.includes(suchtext));
+        }
+        
+        return true;
+      });
+      
+      tbody.innerHTML = "";
+      
+      if (gefiltert.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="6" style="text-align: center; padding: 30px; color: var(--muted);">Keine Einträge gefunden</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+      
+      gefiltert.forEach(eintrag => {
+        const tr = document.createElement("tr");
+        
+        // Für mobile Darstellung: data-label Attribute
+        tr.innerHTML = `
+          <td data-label="Verfahren">${eintrag.verfahren}</td>
+          <td data-label="Typ">${eintrag.typ}</td>
+          <td data-label="Titel">${eintrag.titel}</td>
+          <td data-label="Norm">${eintrag.norm}</td>
+          <td data-label="Organisation">${eintrag.org}</td>
+          <td data-label="Link">
+            <a href="${eintrag.link}" class="norm-link" target="_blank" rel="noopener noreferrer">Öffnen</a>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
 
-</table>
+    // ===== INITIALISIERUNG =====
+    const tbody = document.getElementById("tableBody");
+    
+    // Event-Listener für Filter
+    document.getElementById("verfahrenFilter").addEventListener("change", anzeigen);
+    document.getElementById("typFilter").addEventListener("change", anzeigen);
+    document.getElementById("suche").addEventListener("input", anzeigen);
+    
+    // Theme Toggle
+    document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
+    
+    // Theme initialisieren
+    initTheme();
+    
+    // CSV laden
+    ladeCSV();
 
-</div>
+    // Storage-Listener für Theme-Synchronisation (wie im Portal)
+    window.addEventListener('storage', function(e) {
+      if (e.key === THEME_STORAGE_KEY) {
+        const newTheme = e.newValue;
+        if (newTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
 
-<script>
-
-const csvURL="https://raw.githubusercontent.com/Acendrion1984/Standards/main/Standards.csv";
-
-let daten=[];
-
-async function ladeCSV(){
-
-const response=await fetch(csvURL);
-const text=await response.text();
-
-const rows=text.split("\n").slice(1);
-
-daten=rows.map(r=>{
-
-const c=r.split(",");
-
-return{
-verfahren:c[0],
-typ:c[1],
-titel:c[2],
-norm:c[3],
-org:c[4],
-link:c[5]
-}
-
-});
-
-anzeigen();
-
-}
-
-function anzeigen(){
-
-const vf=document.getElementById("verfahrenFilter").value;
-const tf=document.getElementById("typFilter").value;
-const suche=document.getElementById("suche").value.toLowerCase();
-
-const tbody=document.querySelector("#normTable tbody");
-tbody.innerHTML="";
-
-daten
-.filter(d => (!vf || d.verfahren===vf))
-.filter(d => (!tf || d.typ===tf))
-.filter(d => 
-!suche ||
-d.titel.toLowerCase().includes(suche) ||
-d.norm.toLowerCase().includes(suche) ||
-d.org.toLowerCase().includes(suche) ||
-d.verfahren.toLowerCase().includes(suche)
-)
-.forEach(d => {
-
-const tr=document.createElement("tr");
-
-tr.innerHTML=`
-<td>${d.verfahren}</td>
-<td>${d.typ}</td>
-<td>${d.titel}</td>
-<td>${d.norm}</td>
-<td>${d.org}</td>
-<td><a href="${d.link}" target="_blank">öffnen</a></td>
-`;
-
-tbody.appendChild(tr);
-
-});
-
-}
-
-document.getElementById("verfahrenFilter").addEventListener("change",anzeigen);
-document.getElementById("typFilter").addEventListener("change",anzeigen);
-document.getElementById("suche").addEventListener("input",anzeigen);
-
-ladeCSV();
-
-</script>
-
+    // Tastaturkürzel für Theme (wie im Portal)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 't' || e.key === 'T') {
+        toggleTheme();
+      }
+    });
+  </script>
 </body>
 </html>
