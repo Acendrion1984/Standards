@@ -106,153 +106,6 @@ td:nth-child(5):before{content:"Organisation";}
 td:nth-child(6):before{content:"Link";}
 }
 
-/* Bearbeitungsmodus Styles */
-.edit-container {
-margin-top: 30px;
-background: white;
-padding: 20px;
-border-radius: 8px;
-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.edit-container h3 {
-margin-top: 0;
-color: #003a8f;
-}
-
-.edit-form {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 15px;
-margin-bottom: 20px;
-}
-
-.edit-form input, .edit-form select {
-width: 100%;
-padding: 10px;
-border: 1px solid #ddd;
-border-radius: 4px;
-box-sizing: border-box;
-}
-
-.edit-form button {
-grid-column: span 2;
-padding: 12px;
-background: #003a8f;
-color: white;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-font-size: 16px;
-}
-
-.edit-form button:hover {
-background: #002a6f;
-}
-
-.token-section {
-background: #f8f9fa;
-padding: 15px;
-border-radius: 4px;
-margin-bottom: 20px;
-border-left: 4px solid #003a8f;
-}
-
-.token-section input {
-width: 100%;
-padding: 10px;
-border: 1px solid #ddd;
-border-radius: 4px;
-margin: 10px 0;
-font-family: monospace;
-}
-
-.token-section button {
-padding: 8px 16px;
-background: #28a745;
-color: white;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-}
-
-.token-section small {
-color: #666;
-display: block;
-margin-top: 5px;
-}
-
-.edit-buttons {
-display: flex;
-gap: 10px;
-margin-top: 20px;
-}
-
-.edit-buttons button {
-padding: 10px 20px;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.btn-save {
-background: #28a745;
-color: white;
-}
-
-.btn-cancel {
-background: #dc3545;
-color: white;
-}
-
-.btn-edit {
-background: #ffc107;
-color: black;
-margin-right: 5px;
-padding: 3px 8px;
-border: none;
-border-radius: 3px;
-cursor: pointer;
-}
-
-.btn-delete {
-background: #dc3545;
-color: white;
-padding: 3px 8px;
-border: none;
-border-radius: 3px;
-cursor: pointer;
-}
-
-.action-cell {
-display: flex;
-gap: 5px;
-}
-
-.status-message {
-padding: 10px;
-margin: 10px 0;
-border-radius: 4px;
-display: none;
-}
-
-.status-success {
-background: #d4edda;
-color: #155724;
-border: 1px solid #c3e6cb;
-display: block;
-}
-
-.status-error {
-background: #f8d7da;
-color: #721c24;
-border: 1px solid #f5c6cb;
-display: block;
-}
-
-}
-
 </style>
 </head>
 
@@ -285,8 +138,6 @@ ZfP Normen & Standards
 
 </div>
 
-<div id="statusMessage" class="status-message"></div>
-
 <table id="normTable">
 
 <thead>
@@ -297,7 +148,6 @@ ZfP Normen & Standards
 <th>Norm</th>
 <th>Organisation</th>
 <th>Link</th>
-<th>Aktionen</th>
 </tr>
 </thead>
 
@@ -305,280 +155,83 @@ ZfP Normen & Standards
 
 </table>
 
-<div class="edit-container">
-<h3>Neuen Eintrag hinzufügen / Bearbeiten</h3>
-<div class="token-section">
-<label for="githubToken">GitHub Personal Access Token (PAT):</label>
-<input type="password" id="githubToken" placeholder="ghp_..." value="ghp_BgJ1gGZC1TmlCIyAt3k7flP94d2urA33DCND">
-<small>Token wird nur lokal im Browser gespeichert. Niemals teilen!</small>
-</div>
-
-<form id="editForm" class="edit-form">
-<input type="hidden" id="editIndex" value="-1">
-<select id="editVerfahren" required>
-<option value="">Verfahren wählen</option>
-<option value="VT">VT</option>
-<option value="MT">MT</option>
-<option value="PT">PT</option>
-<option value="UT">UT</option>
-<option value="ET">ET</option>
-</select>
-
-<select id="editTyp" required>
-<option value="">Typ wählen</option>
-<option value="Norm">Norm</option>
-<option value="Standard">Standard</option>
-</select>
-
-<input type="text" id="editTitel" placeholder="Titel" required>
-<input type="text" id="editNorm" placeholder="Norm" required>
-<input type="text" id="editOrg" placeholder="Organisation" required>
-<input type="url" id="editLink" placeholder="Link (URL)" required>
-
-<button type="submit">Speichern</button>
-</form>
-
-<div class="edit-buttons">
-<button onclick="cancelEdit()" class="btn-cancel">Abbrechen</button>
-<button onclick="loadFromGitHub()" class="btn-save">Von GitHub neu laden</button>
-</div>
-</div>
-
 </div>
 
 <script>
 
-// GitHub Konfiguration aus dem Bild
-const GITHUB_OWNER = "Acendrion1984";
-const GITHUB_REPO = "SelfAudit";
-const GITHUB_BRANCH = "main";
-const GITHUB_FILE_PATH = "Standards.csv";
+const csvURL="https://raw.githubusercontent.com/Acendrion1984/Standards/main/Standards.csv";
 
-let daten = [];
-let currentEditIndex = -1;
+let daten=[];
 
-function showStatus(message, isSuccess = true) {
-const statusDiv = document.getElementById('statusMessage');
-statusDiv.textContent = message;
-statusDiv.className = isSuccess ? 'status-success' : 'status-error';
-setTimeout(() => {
-statusDiv.style.display = 'none';
-}, 5000);
+async function ladeCSV(){
+
+const response=await fetch(csvURL);
+const text=await response.text();
+
+const rows=text.split("\n").slice(1);
+
+daten=rows.map(r=>{
+
+const c=r.split(",");
+
+return{
+verfahren:c[0],
+typ:c[1],
+titel:c[2],
+norm:c[3],
+org:c[4],
+link:c[5]
 }
 
-async function loadFromGitHub() {
-try {
-const token = document.getElementById('githubToken').value;
-if (!token) {
-showStatus('Bitte GitHub Token eingeben', false);
-return;
-}
-
-const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}?ref=${GITHUB_BRANCH}`;
-
-const response = await fetch(url, {
-headers: {
-'Authorization': `token ${token}`,
-'Accept': 'application/vnd.github.v3+json'
-}
-});
-
-if (!response.ok) {
-throw new Error(`GitHub API Fehler: ${response.status}`);
-}
-
-const data = await response.json();
-const content = atob(data.content.replace(/\n/g, ''));
-parseCSV(content);
-showStatus('Daten erfolgreich von GitHub geladen');
-} catch (error) {
-console.error('Fehler beim Laden:', error);
-showStatus('Fehler beim Laden von GitHub: ' + error.message, false);
-// Fallback: Leere Daten oder Beispiel-Daten
-parseCSV('Verfahren,Typ,Titel,Norm,Organisation,Link\nVT,Norm,Beispiel Titel,ISO 1234,ISO,https://example.com');
-}
-}
-
-function parseCSV(csvText) {
-const rows = csvText.split("\n").filter(row => row.trim());
-const headers = rows[0].split(",");
-
-daten = rows.slice(1).map(row => {
-const values = row.split(",");
-return {
-verfahren: values[0] || "",
-typ: values[1] || "",
-titel: values[2] || "",
-norm: values[3] || "",
-org: values[4] || "",
-link: values[5] || ""
-};
 });
 
 anzeigen();
+
 }
 
-function arrayToCSV() {
-const headers = ['Verfahren', 'Typ', 'Titel', 'Norm', 'Organisation', 'Link'];
-const rows = daten.map(d => 
-[ d.verfahren, d.typ, d.titel, d.norm, d.org, d.link ].map(cell => 
-cell.replace(/,/g, ';') // Kommas in Zellen ersetzen
-).join(',')
-);
-return [headers.join(','), ...rows].join('\n');
-}
+function anzeigen(){
 
-async function saveToGitHub() {
-try {
-const token = document.getElementById('githubToken').value;
-if (!token) {
-showStatus('Bitte GitHub Token eingeben', false);
-return;
-}
+const vf=document.getElementById("verfahrenFilter").value;
+const tf=document.getElementById("typFilter").value;
+const suche=document.getElementById("suche").value.toLowerCase();
 
-const csvContent = arrayToCSV();
-const encodedContent = btoa(unescape(encodeURIComponent(csvContent)));
-
-// Erst die aktuelle Datei abrufen, um die SHA zu bekommen
-const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}?ref=${GITHUB_BRANCH}`;
-
-const getResponse = await fetch(url, {
-headers: {
-'Authorization': `token ${token}`,
-'Accept': 'application/vnd.github.v3+json'
-}
-});
-
-let sha = null;
-if (getResponse.ok) {
-const data = await getResponse.json();
-sha = data.sha;
-}
-
-// Datei aktualisieren oder erstellen
-const putResponse = await fetch(url, {
-method: 'PUT',
-headers: {
-'Authorization': `token ${token}`,
-'Accept': 'application/vnd.github.v3+json',
-'Content-Type': 'application/json'
-},
-body: JSON.stringify({
-message: 'Update Standards.csv',
-content: encodedContent,
-branch: GITHUB_BRANCH,
-sha: sha
-})
-});
-
-if (!putResponse.ok) {
-const errorData = await putResponse.json();
-throw new Error(errorData.message || 'Fehler beim Speichern');
-}
-
-showStatus('Daten erfolgreich auf GitHub gespeichert');
-currentEditIndex = -1;
-document.getElementById('editIndex').value = '-1';
-document.getElementById('editForm').reset();
-} catch (error) {
-console.error('Fehler beim Speichern:', error);
-showStatus('Fehler beim Speichern auf GitHub: ' + error.message, false);
-}
-}
-
-function anzeigen() {
-const vf = document.getElementById("verfahrenFilter").value;
-const tf = document.getElementById("typFilter").value;
-const suche = document.getElementById("suche").value.toLowerCase();
-
-const tbody = document.querySelector("#normTable tbody");
-tbody.innerHTML = "";
+const tbody=document.querySelector("#normTable tbody");
+tbody.innerHTML="";
 
 daten
-.filter(d => (!vf || d.verfahren === vf))
-.filter(d => (!tf || d.typ === tf))
+.filter(d => (!vf || d.verfahren===vf))
+.filter(d => (!tf || d.typ===tf))
 .filter(d => 
 !suche ||
-(d.titel && d.titel.toLowerCase().includes(suche)) ||
-(d.norm && d.norm.toLowerCase().includes(suche)) ||
-(d.org && d.org.toLowerCase().includes(suche)) ||
-(d.verfahren && d.verfahren.toLowerCase().includes(suche))
+d.titel.toLowerCase().includes(suche) ||
+d.norm.toLowerCase().includes(suche) ||
+d.org.toLowerCase().includes(suche) ||
+d.verfahren.toLowerCase().includes(suche)
 )
-.forEach((d, index) => {
-const tr = document.createElement("tr");
-tr.innerHTML = `
-<td>${d.verfahren || ''}</td>
-<td>${d.typ || ''}</td>
-<td>${d.titel || ''}</td>
-<td>${d.norm || ''}</td>
-<td>${d.org || ''}</td>
-<td><a href="${d.link || '#'}" target="_blank">öffnen</a></td>
-<td class="action-cell">
-<button class="btn-edit" onclick="editEntry(${index})">Bearbeiten</button>
-<button class="btn-delete" onclick="deleteEntry(${index})">Löschen</button>
-</td>
+.forEach(d => {
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td>${d.verfahren}</td>
+<td>${d.typ}</td>
+<td>${d.titel}</td>
+<td>${d.norm}</td>
+<td>${d.org}</td>
+<td><a href="${d.link}" target="_blank">öffnen</a></td>
 `;
+
 tbody.appendChild(tr);
-});
-}
 
-window.editEntry = function(index) {
-currentEditIndex = index;
-const d = daten[index];
-document.getElementById('editIndex').value = index;
-document.getElementById('editVerfahren').value = d.verfahren;
-document.getElementById('editTyp').value = d.typ;
-document.getElementById('editTitel').value = d.titel;
-document.getElementById('editNorm').value = d.norm;
-document.getElementById('editOrg').value = d.org;
-document.getElementById('editLink').value = d.link;
-}
-
-window.deleteEntry = function(index) {
-if (confirm('Eintrag wirklich löschen?')) {
-daten.splice(index, 1);
-anzeigen();
-saveToGitHub();
-}
-}
-
-window.cancelEdit = function() {
-currentEditIndex = -1;
-document.getElementById('editIndex').value = '-1';
-document.getElementById('editForm').reset();
-}
-
-document.getElementById('editForm').addEventListener('submit', function(e) {
-e.preventDefault();
-
-const newEntry = {
-verfahren: document.getElementById('editVerfahren').value,
-typ: document.getElementById('editTyp').value,
-titel: document.getElementById('editTitel').value,
-norm: document.getElementById('editNorm').value,
-org: document.getElementById('editOrg').value,
-link: document.getElementById('editLink').value
-};
-
-if (currentEditIndex === -1) {
-daten.push(newEntry);
-} else {
-daten[currentEditIndex] = newEntry;
-}
-
-anzeigen();
-saveToGitHub();
 });
 
-document.getElementById("verfahrenFilter").addEventListener("change", anzeigen);
-document.getElementById("typFilter").addEventListener("change", anzeigen);
-document.getElementById("suche").addEventListener("input", anzeigen);
+}
 
-// Token aus dem Bild vorausgefüllt
-document.getElementById('githubToken').value = 'ghp_BgJ1gGZC1TmlCIyAt3k7flP94d2urA33DCND';
+document.getElementById("verfahrenFilter").addEventListener("change",anzeigen);
+document.getElementById("typFilter").addEventListener("change",anzeigen);
+document.getElementById("suche").addEventListener("input",anzeigen);
 
-// Initial laden
-loadFromGitHub();
+ladeCSV();
 
 </script>
 
