@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZfP Normen & Standards</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+margin:0;
+background:#f4f6f8;
+}
+
+header{
+background:#003a8f;
+color:white;
+padding:16px;
+text-align:center;
+font-size:20px;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:15px;
+}
+
+.filters{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:15px;
+}
+
+select,input{
+padding:8px;
+font-size:16px;
+}
+
+input{
+flex:1;
+min-width:200px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th, td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+th{
+background:#e9edf2;
+}
+
+a{
+color:#0066cc;
+text-decoration:none;
+}
+
+a:hover{
+text-decoration:underline;
+}
+
+/* Mobile Darstellung */
+
+@media (max-width:700px){
+
+table, thead, tbody, th, td, tr{
+display:block;
+}
+
+thead{
+display:none;
+}
+
+tr{
+background:white;
+margin-bottom:10px;
+padding:10px;
+border-radius:8px;
+}
+
+td{
+border:none;
+padding:5px 0;
+}
+
+td:before{
+font-weight:bold;
+display:block;
+}
+
+td:nth-child(1):before{content:"Verfahren";}
+td:nth-child(2):before{content:"Typ";}
+td:nth-child(3):before{content:"Titel";}
+td:nth-child(4):before{content:"Norm";}
+td:nth-child(5):before{content:"Organisation";}
+td:nth-child(6):before{content:"Link";}
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+ZfP Normen & Standards
+</header>
+
+<div class="container">
+
+<div class="filters">
+
+<input type="text" id="suche" placeholder="Suche nach Norm, Titel, Organisation...">
+
+<select id="verfahrenFilter">
+<option value="">Alle Verfahren</option>
+<option value="VT">VT</option>
+<option value="MT">MT</option>
+<option value="PT">PT</option>
+<option value="UT">UT</option>
+<option value="ET">ET</option>
+</select>
+
+<select id="typFilter">
+<option value="">Norm + Standard</option>
+<option value="Norm">Norm</option>
+<option value="Standard">Standard</option>
+</select>
+
+</div>
+
+<table id="normTable">
+
+<thead>
+<tr>
+<th>Verfahren</th>
+<th>Typ</th>
+<th>Titel</th>
+<th>Norm</th>
+<th>Organisation</th>
+<th>Link</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const csvURL="https://raw.githubusercontent.com/DEINUSERNAME/DEINREPO/main/zfp_normen.csv";
+
+let daten=[];
+
+async function ladeCSV(){
+
+const response=await fetch(csvURL);
+const text=await response.text();
+
+const rows=text.split("\n").slice(1);
+
+daten=rows.map(r=>{
+
+const c=r.split(",");
+
+return{
+verfahren:c[0],
+typ:c[1],
+titel:c[2],
+norm:c[3],
+org:c[4],
+link:c[5]
+}
+
+});
+
+anzeigen();
+
+}
+
+function anzeigen(){
+
+const vf=document.getElementById("verfahrenFilter").value;
+const tf=document.getElementById("typFilter").value;
+const suche=document.getElementById("suche").value.toLowerCase();
+
+const tbody=document.querySelector("#normTable tbody");
+tbody.innerHTML="";
+
+daten
+.filter(d => (!vf || d.verfahren===vf))
+.filter(d => (!tf || d.typ===tf))
+.filter(d => 
+!suche ||
+d.titel.toLowerCase().includes(suche) ||
+d.norm.toLowerCase().includes(suche) ||
+d.org.toLowerCase().includes(suche) ||
+d.verfahren.toLowerCase().includes(suche)
+)
+.forEach(d => {
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td>${d.verfahren}</td>
+<td>${d.typ}</td>
+<td>${d.titel}</td>
+<td>${d.norm}</td>
+<td>${d.org}</td>
+<td><a href="${d.link}" target="_blank">öffnen</a></td>
+`;
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+document.getElementById("verfahrenFilter").addEventListener("change",anzeigen);
+document.getElementById("typFilter").addEventListener("change",anzeigen);
+document.getElementById("suche").addEventListener("input",anzeigen);
+
+ladeCSV();
+
+</script>
+
+</body>
+</html>
