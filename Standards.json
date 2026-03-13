@@ -1,0 +1,26 @@
+[
+  {
+    "verfahren": "VT",
+    "typ": "Norm",
+    "titel": "ZfP - Qualifizierung von Personal",
+    "norm": "DIN EN ISO 9712",
+    "org": "ISO",
+    "link": "https://www.iso.org"
+  },
+  {
+    "verfahren": "MT",
+    "typ": "Standard",
+    "titel": "Magnetic Particle Testing",
+    "norm": "ASTM E1444",
+    "org": "ASTM",
+    "link": "https://www.astm.org"
+  },
+  {
+    "verfahren": "allgemein",
+    "typ": "Richtlinie",
+    "titel": "ZfP Review Audits",
+    "norm": "IN QP 29005",
+    "org": "Schaeffler",
+    "link": "#"
+  }
+]
