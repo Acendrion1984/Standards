@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Standards & Normen · ZfP Portal</title>
+  <title>Standards & Normen · ZfP Portal (CSV)</title>
 
   <style>
     /* ===== Design-Variablen (identisch zum Portal) ===== */
@@ -171,7 +171,7 @@
       opacity: 0.95;
     }
 
-    /* Admin-Toolbar – kompakt und klar */
+    /* Admin-Toolbar – CSV-spezifisch */
     .admin-toolbar {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -217,12 +217,12 @@
       background: var(--button-hover);
       transform: translateY(-2px);
     }
-    .link-aktion {
+    .csv-aktion {
       display: flex;
       gap: 10px;
       margin-left: auto;
     }
-    .link-aktion button {
+    .csv-aktion button {
       background: var(--card-bg);
       border: 2px solid var(--filter-border);
       color: var(--fg);
@@ -235,7 +235,7 @@
       align-items: center;
       gap: 6px;
     }
-    .link-aktion button:hover {
+    .csv-aktion button:hover {
       border-color: var(--filter-focus);
       background: var(--filter-focus);
       color: white;
@@ -363,7 +363,7 @@
     @media (max-width: 1000px) {
       .normen-portal { padding: 16px; }
       .admin-toolbar { flex-direction: column; align-items: stretch; }
-      .link-aktion { margin-left: 0; justify-content: flex-end; }
+      .csv-aktion { margin-left: 0; justify-content: flex-end; }
     }
     @media (max-width: 768px) {
       .token-section input { width: 100%; }
@@ -383,19 +383,20 @@
     <!-- Hero Bereich -->
     <div class="hero">
       <h2>ZfP Normen & Standards</h2>
-      <p>Verwaltung interner und externer Normen – inkl. GitHub-Sync</p>
+      <p>CSV-basierte Verwaltung mit GitHub-Sync</p>
     </div>
 
-    <!-- Admin-Toolbar: Token + Link-Liste steuern -->
+    <!-- Admin-Toolbar: Token + CSV-Aktionen -->
     <div class="admin-toolbar">
       <div class="token-section">
         <label>🔑 GitHub Token</label>
         <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxx" />
         <button id="saveTokenBtn">Speichern</button>
       </div>
-      <div class="link-aktion">
-        <button id="newNormBtn">➕ Neue Norm</button>
-        <button id="syncFromGithubBtn">⬇️ Sync von GitHub</button>
+      <div class="csv-aktion">
+        <button id="newEntryBtn">➕ Neuer Eintrag</button>
+        <button id="syncFromGithubBtn">⬇️ CSV von GitHub laden</button>
+        <button id="saveToGithubBtn">⬆️ CSV nach GitHub speichern</button>
       </div>
     </div>
 
@@ -434,7 +435,7 @@
     <!-- Footer -->
     <footer>
       <div class="company-info">Schaeffler Technologies AG & Co. KG</div>
-      <div class="version-info">Version 01, 14.02.2026 · JSON-gestützte Linkverwaltung</div>
+      <div class="version-info">Version 02, 14.02.2026 · CSV + GitHub-Sync</div>
       <div>ZfP-Portal Schweinfurt</div>
       <div class="creator-info">Ersteller: Häusner Daniel, WI/SW2-PQT</div>
     </footer>
@@ -447,12 +448,12 @@
       // ===== KONFIGURATION =====
       const GITHUB_USER = "Acendrion1984";
       const REPO_NAME = "Standards";
-      const JSON_PATH = "Standards.json";          // Datei im Repo
-      const RAW_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${REPO_NAME}/main/${JSON_PATH}`;
-      const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${JSON_PATH}`;
+      const CSV_PATH = "Standards.csv";          // Datei im Repo
+      const RAW_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${REPO_NAME}/main/${CSV_PATH}`;
+      const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${CSV_PATH}`;
       
       const THEME_STORAGE_KEY = 'zfp-theme-preference';
-      const TOKEN_STORAGE_KEY = 'github_token_standards'; // lokal speichern (optional)
+      const TOKEN_STORAGE_KEY = 'github_token_standards';
 
       let normenDaten = [];                // Array aller Norm-Objekte
       let githubToken = localStorage.getItem(TOKEN_STORAGE_KEY) || '';
@@ -461,8 +462,9 @@
       const tbody = document.getElementById("tableBody");
       const tokenInput = document.getElementById("githubToken");
       const saveTokenBtn = document.getElementById("saveTokenBtn");
-      const newNormBtn = document.getElementById("newNormBtn");
+      const newEntryBtn = document.getElementById("newEntryBtn");
       const syncBtn = document.getElementById("syncFromGithubBtn");
+      const saveBtn = document.getElementById("saveToGithubBtn");
       const sucheInput = document.getElementById("suche");
       const verfahrenFilter = document.getElementById("verfahrenFilter");
       const typFilter = document.getElementById("typFilter");
@@ -487,21 +489,53 @@
       document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
       initTheme();
 
-      // ===== Laden von GitHub (JSON) =====
-      async function ladeVonGithub() {
+      // ===== CSV PARSEN / STRINGIFY =====
+      function csvZuObjekten(csvText) {
+        const zeilen = csvText.split('\n').map(z => z.trim()).filter(z => z.length > 0);
+        if (zeilen.length === 0) return [];
+        
+        const kopf = zeilen[0].split(',').map(s => s.trim());
+        // Erwartete Spalten: verfahren,typ,titel,norm,org,link
+        const daten = [];
+        for (let i = 1; i < zeilen.length; i++) {
+          const werte = zeilen[i].split(',').map(s => s.trim());
+          if (werte.length >= 6) {
+            daten.push({
+              verfahren: werte[0],
+              typ: werte[1],
+              titel: werte[2],
+              norm: werte[3],
+              org: werte[4],
+              link: werte[5]
+            });
+          }
+        }
+        return daten;
+      }
+
+      function objekteZuCsv(objekte) {
+        const kopf = "verfahren,typ,titel,norm,org,link";
+        const zeilen = objekte.map(o => 
+          `${o.verfahren || ''},${o.typ || ''},${o.titel || ''},${o.norm || ''},${o.org || ''},${o.link || ''}`
+        );
+        return [kopf, ...zeilen].join('\n');
+      }
+
+      // ===== Laden von GitHub (CSV) =====
+      async function ladeCsvVonGithub() {
         try {
           const response = await fetch(RAW_URL, { cache: "no-cache" });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const json = await response.json();
-          if (Array.isArray(json)) {
-            normenDaten = json;
-          } else {
-            normenDaten = [];
-          }
+          const csvText = await response.text();
+          normenDaten = csvZuObjekten(csvText);
+          
+          // Sortieren nach Norm
+          normenDaten.sort((a,b) => (a.norm || '').localeCompare(b.norm || ''));
           anzeigen();
+          alert(`✅ ${normenDaten.length} Einträge geladen`);
         } catch (e) {
           console.warn("Konnte nicht von GitHub laden, starte mit Beispiel", e);
-          // Fallback-Beispiel (entspricht der CSV-Struktur)
+          // Fallback-Beispiel
           normenDaten = [
             { verfahren: "VT", typ: "Norm", titel: "ZfP - Qualifizierung von Personal", norm: "DIN EN ISO 9712", org: "ISO", link: "https://www.iso.org" },
             { verfahren: "MT", typ: "Standard", titel: "Magnetic Particle Testing", norm: "ASTM E1444", org: "ASTM", link: "https://www.astm.org" },
@@ -511,17 +545,17 @@
         }
       }
 
-      // ===== Speichern auf GitHub (PUT) =====
-      async function speichereAufGithub() {
+      // ===== Speichern auf GitHub (CSV) =====
+      async function speichereCsvAufGithub() {
         if (!githubToken) {
           alert("❌ Bitte zuerst GitHub-Token eingeben und speichern.");
           return;
         }
 
-        const contentStr = JSON.stringify(normenDaten, null, 2);
-        const contentBase64 = btoa(unescape(encodeURIComponent(contentStr))); // UTF-8 safe
+        const csvContent = objekteZuCsv(normenDaten);
+        const contentBase64 = btoa(unescape(encodeURIComponent(csvContent))); // UTF-8 safe
 
-        // Zuerst SHA der vorhandenen Datei holen (wenn existiert)
+        // SHA der vorhandenen Datei holen
         let sha = null;
         try {
           const meta = await fetch(API_URL, { headers: { Authorization: `token ${githubToken}` } });
@@ -529,10 +563,10 @@
             const data = await meta.json();
             sha = data.sha;
           }
-        } catch (e) { /* Datei existiert nicht – dann ohne SHA */ }
+        } catch (e) { /* Datei existiert nicht */ }
 
         const body = {
-          message: "Update Standards.json via App",
+          message: "Update Standards.csv via App",
           content: contentBase64,
           branch: "main"
         };
@@ -551,7 +585,7 @@
             const err = await response.json();
             throw new Error(err.message || "Fehler beim Speichern");
           }
-          alert("✅ Erfolgreich auf GitHub gespeichert (Standards.json)");
+          alert("✅ CSV erfolgreich auf GitHub gespeichert");
         } catch (error) {
           alert("❌ Fehler: " + error.message);
         }
@@ -593,8 +627,8 @@
         });
       }
 
-      // ===== Neuen Norm-Eintrag (Dialog) =====
-      function neueNormErfassen() {
+      // ===== Neuen CSV-Eintrag (Dialog) =====
+      function neuenEintragErfassen() {
         const verfahren = prompt("Verfahren (z.B. UT, MT, allgemein):", "UT");
         if (verfahren === null) return;
         const typ = prompt("Typ (Norm/Standard/Richtlinie/Spezifikation):", "Norm");
@@ -617,13 +651,12 @@
           link: link.trim()
         });
 
-        // Sortieren nach Norm (einfach alphabetisch)
+        // Sortieren nach Norm
         normenDaten.sort((a,b) => (a.norm || '').localeCompare(b.norm || ''));
         anzeigen();
 
-        // Automatisch auf GitHub speichern? Besser erstmal manuell per Sync-Button.
-        if (confirm("Möchtest du die aktualisierte Liste jetzt auf GitHub speichern?")) {
-          speichereAufGithub();
+        if (confirm("Möchtest du die CSV jetzt auf GitHub speichern?")) {
+          speichereCsvAufGithub();
         }
       }
 
@@ -632,40 +665,20 @@
       verfahrenFilter.addEventListener("change", anzeigen);
       typFilter.addEventListener("change", anzeigen);
 
-      // Neuen Eintrag anlegen
-      newNormBtn.addEventListener("click", neueNormErfassen);
-
-      // Sync von GitHub (laden)
-      syncBtn.addEventListener("click", () => {
-        ladeVonGithub();
-      });
+      newEntryBtn.addEventListener("click", neuenEintragErfassen);
+      syncBtn.addEventListener("click", ladeCsvVonGithub);
+      saveBtn.addEventListener("click", speichereCsvAufGithub);
 
       // Beim Start laden
-      ladeVonGithub();
+      ladeCsvVonGithub();
 
-      // Zusätzlich: mit "Strg+Enter" speichern (optional)
+      // Tastatur-Shortcut: Strg+Enter speichert
       window.addEventListener("keydown", (e) => {
-        if (e.ctrlKey && e.key === "s") {
+        if (e.ctrlKey && e.key === "Enter") {
           e.preventDefault();
-          speichereAufGithub();
+          speichereCsvAufGithub();
         }
       });
-
-      // ===== GitHub Speichern direkt über extra Funktion (wird von Buttons genutzt) =====
-      // Die speichereAufGithub Funktion ist bereits definiert. Wir könnten noch einen "Speichern"-Button ergänzen,
-      // aber der Sync-Button lädt nur, deshalb hängen wir eine manuelle Speichermöglichkeit an:
-      // (Im Admin-Toolbar fehlt noch ein expliziter "⬆️ Speichern nach GitHub"-Button – ich füge ihn via JS hinzu, oder baue ihn direkt ein.
-      // Der Kunde wollte aber vor allem, dass Links in JSON auf Github gespeichert werden. Über neuen Norm-Dialog + speichereAufGithub ist das gegeben.
-      // Für bessere UX: zusätzlicher Button "Änderungen auf GitHub speichern"
-      const speichernBtn = document.createElement("button");
-      speichernBtn.innerHTML = "⬆️ Speichern nach GitHub";
-      speichernBtn.style.marginLeft = "10px";
-      speichernBtn.classList.add("link-aktion"); // Stil anpassen
-      speichernBtn.addEventListener("click", speichereAufGithub);
-      document.querySelector(".link-aktion").appendChild(speichernBtn);
-
-      // Sortierung nach Norm einmal initial
-      normenDaten.sort((a,b) => (a.norm || '').localeCompare(b.norm || ''));
     })();
   </script>
 </body>
